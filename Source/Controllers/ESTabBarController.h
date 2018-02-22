@@ -37,6 +37,8 @@ typedef void (^ESTabBarAction)(void);
 // selecting them. Defaults to 3.0.
 @property (nonatomic, assign) CGFloat selectionIndicatorHeight;
 
+@property (nonatomic, strong) UIImage *notificationImage;
+
 
 /**
  Initializes the tab bar with an array of UIImage that will be the icons
@@ -85,6 +87,7 @@ typedef void (^ESTabBarAction)(void);
  */
 - (void)setBarHidden:(BOOL)hidden animated:(BOOL)animated;
 
+- (void)updateNotificationToggle:(BOOL)enabled atIndex:(NSInteger)index;
 
 /**
  Sets the selected index of the controller, as if pressing one of the tab

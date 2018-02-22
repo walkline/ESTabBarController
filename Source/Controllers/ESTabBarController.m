@@ -25,6 +25,7 @@
 @property (nonatomic, strong) NSMutableDictionary *actions;
 @property (nonatomic, assign) BOOL didSetupInterface;
 @property (nonatomic, strong) NSMutableArray *buttons;
+@property (nonatomic, strong) NSMutableDictionary *notificationImageViews;
 @property (nonatomic, strong) NSMutableSet *highlightedButtonIndexes;
 @property (nonatomic, strong) NSArray *tabIcons;
 @property (nonatomic, strong) UIView *selectionIndicator;
@@ -256,6 +257,25 @@
     _selectedIndex = -1;
     
     self.separatorLineColor = [UIColor lightGrayColor];
+}
+
+- (void)updateNotificationToggle:(BOOL)enabled atIndex:(NSInteger)index {
+    UIImageView *imageView = self.notificationImageViews[[NSNumber numberWithInteger:index]];
+    if (!enabled) {
+        if (imageView != nil) {
+            [imageView removeFromSuperview];
+            [self.notificationImageViews removeObjectForKey:[NSNumber numberWithInteger:index]];
+        }
+        return;
+    }
+    if (imageView == nil) {
+        UIButton *button = self.buttons[index];
+        imageView = [[UIImageView alloc] initWithImage:self.notificationImage];
+        imageView.frame = CGRectMake(button.frame.origin.x + button.frame.size.width - 32, button.frame.origin.y + 12, 12, 12);
+        [self.buttonsContainer addSubview:imageView];
+        
+        self.notificationImageViews[[NSNumber numberWithInteger:index]] = imageView;
+    }
 }
 
 
