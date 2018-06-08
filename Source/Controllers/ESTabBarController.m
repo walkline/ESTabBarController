@@ -20,6 +20,7 @@
 
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *separatorLineHeightConstraint;
 @property (nonatomic, weak) IBOutlet NSLayoutConstraint *buttonsContainerHeightConstraint;
+@property (unsafe_unretained, nonatomic) IBOutlet NSLayoutConstraint *buttonsContainerBottomConstraint;
 
 @property (nonatomic, strong) NSMutableDictionary *controllers;
 @property (nonatomic, strong) NSMutableDictionary *actions;
@@ -33,6 +34,7 @@
 @property (nonatomic, assign) CGFloat buttonsContainerHeightConstraintInitialConstant;
 @property (nonatomic, strong) NSLayoutConstraint *selectionIndicatorHeightConstraint;
 
+@property (assign, nonatomic) BOOL isHidden;
 @end
 
 
@@ -200,14 +202,31 @@
 
 
 - (void)setBarHidden:(BOOL)hidden animated:(BOOL)animated {
+    if (self.isHidden == hidden) {
+        return;
+    }
+    
+    self.isHidden = hidden;
     void (^animations)(void) = ^{
-        self.buttonsContainerHeightConstraint.constant = hidden ? 0 : self.buttonsContainerHeightConstraintInitialConstant;
+        CGFloat hiddenValue = 0;
+        if (@available(iOS 11.0, *)) {
+            UIWindow *window = UIApplication.sharedApplication.keyWindow;
+            hiddenValue += window.safeAreaInsets.bottom;
+        }
+        
+        self.buttonsContainerBottomConstraint.constant = hidden ? 0 - self.buttonsContainerHeightConstraintInitialConstant - hiddenValue : 0;
+        self.unsafeAreaContainer.alpha = hidden ? 0 : 1;
+
         [self.view layoutIfNeeded];
+        for (NSNumber *vcKey in self.controllers) {
+            UIViewController *vc = self.controllers[vcKey];
+            [vc.view layoutIfNeeded];
+        }
     };
     
     if (animated) {
         [self.view layoutIfNeeded];
-        [UIView animateWithDuration:0.5 animations:animations];
+        [UIView animateWithDuration:0.2 animations:animations];
     } else {
         animations();
     }
